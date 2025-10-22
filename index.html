@@ -14,7 +14,7 @@
             --color-tarjeta: #ffffff;    /* Blanco */
             --color-texto: #333333;      /* Gris oscuro para texto */
             --color-texto-claro: #555555;
-            --sombra: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --sombra: 0 5px 15px rgba(0, 0, 0, 0.1); /* Sombra mejorada */
             --borde-radio: 8px;
         }
 
@@ -37,11 +37,11 @@
 
         /* --- Encabezado --- */
         .header {
-            background-color: var(--color-primario);
+            /* MEJORA: Gradiente sutil */
+            background: linear-gradient(135deg, var(--color-primario) 0%, #003d6b 100%);
             color: white;
             padding: 2.5rem 1.5rem;
             text-align: center;
-            border-bottom: 4px solid #003d6b; /* Un tono más oscuro para profundidad */
         }
 
         .header h1 {
@@ -66,13 +66,8 @@
         /* --- Rejilla de Proyectos (Portfolio) --- */
         .portfolio-grid {
             display: grid;
-            /* * Crea columnas automáticas: 
-             * - Intenta que midan 350px.
-             * - Si no caben, se ajustan (mínimo 300px).
-             * - En pantallas pequeñas, se pone una sola columna (1fr).
-             */
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem; /* Espacio entre las tarjetas */
+            gap: 2rem;
         }
 
         /* --- Tarjeta de Proyecto Individual --- */
@@ -80,40 +75,74 @@
             background-color: var(--color-tarjeta);
             border-radius: var(--borde-radio);
             box-shadow: var(--sombra);
-            overflow: hidden; /* Para que el borde redondeado se aplique bien */
+            overflow: hidden;
             display: flex;
-            flex-direction: column; /* Alinea contenido verticalmente */
+            flex-direction: column;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .project-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Sombra de hover mejorada */
         }
 
         .card-content {
             padding: 1.75rem;
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* Hace que la tarjeta ocupe todo el espacio vertical */
+            flex-grow: 1;
         }
 
         .project-card h2 {
             font-size: 1.5rem;
             color: var(--color-primario);
             margin-bottom: 0.75rem;
+            /* MEJORA: Añadido Flex para alinear icono */
+            display: flex;
+            align-items: center;
         }
 
+        /* MEJORA: Estilo para iconos SVG en el título */
+        .project-card h2 svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            fill: var(--color-primario);
+            flex-shrink: 0;
+        }
+
+        /* MEJORA: Estilos para las etiquetas */
+        .project-tags {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .tag {
+            background-color: #e6f2ff; /* Azul claro */
+            color: var(--color-primario);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
         .project-card p {
             font-size: 1rem;
             color: var(--color-texto-claro);
             margin-bottom: 1.5rem;
-            flex-grow: 1; /* Empuja el botón hacia abajo */
+            flex-grow: 1;
         }
 
         /* --- Botón de enlace al proyecto --- */
         .project-link {
-            display: inline-block;
+            /* MEJORA: Convertido a flex para alinear icono */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Espacio entre texto e icono */
+
             background-color: var(--color-secundario);
             color: white;
             padding: 0.75rem 1.5rem;
@@ -123,9 +152,16 @@
             text-align: center;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
+        
+        /* MEJORA: Estilo para icono SVG en el botón */
+        .project-link svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
 
         .project-link:hover {
-            background-color: #0056b3; /* Un poco más oscuro al pasar el ratón */
+            background-color: #0056b3;
             transform: scale(1.03);
         }
 
@@ -145,7 +181,7 @@
     <header class="header">
         <h1>Mi Portafolio de Proyectos</h1>
         <p>Ampliación de Fundamentos del Hardware</p>
-        <p>Por: <strong>Tu Nombre Aquí</strong></p>
+        <p>Por: <strong>Luis Antonio Sedano Wharton</strong></p>
     </header>
 
     <main class="main-container">
@@ -154,50 +190,87 @@
 
             <div class="project-card">
                 <div class="card-content">
-                    <h2>Trabajo 1: Simulador de Caché</h2>
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"></path></svg>
+                        Trabajo 1: Desmontar y Montar un PC
+                    </h2>
+                    
+                    <div class="project-tags">
+                        <span class="tag">Hardware</span>
+                        <span class="tag">Ensamblaje</span>
+                        <span class="tag">Taller</span>
+                    </div>
                     
                     <p>
-                        Desarrollo de un simulador en C++ para analizar el rendimiento de diferentes
-                        políticas de caché (directa, asociativa por conjuntos) y algoritmos de reemplazo (LRU, FIFO).
+                        Informe detallado del proceso de ensamblaje y desensamblaje de un PC de sobremesa. 
+                        Incluye la identificación de componentes (CPU, RAM, placa base), 
+                        procedimientos de seguridad antiestática y gestión de cableado.
                     </p>
                     
-                    <a href="URL_AL_TRABAJO_1.pdf" class="project-link" target="_blank" rel="noopener noreferrer">
+                    <a href="https://sedanodev.github.io/2asirAFH2526/trabajos/Desmontar%20y%20Montar%20un%20PC%20-%20Luis%20Sedano.pdf" class="project-link" target="_blank" rel="noopener noreferrer">
                         Ver Proyecto
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path></svg>
                     </a>
                 </div>
             </div>
+
             <div class="project-card">
                 <div class="card-content">
-                    <h2>Trabajo 2: Ensamblador MIPS</h2>
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 4c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4zm2 4h14V4H5v4zM3 14c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-4zm2 4h14v-4H5v4z"></path></svg>
+                        Trabajo 2: Desmontar y Montar un Servidor
+                    </h2>
+
+                    <div class="project-tags">
+                        <span class="tag">Hardware</span>
+                        <span class="tag">Servidores</span>
+                        <span class="tag">RAID</span>
+                    </div>
                     
                     <p>
-                        Implementación de algoritmos de ordenamiento (Bubble Sort, Quicksort)
-                        directamente en lenguaje ensamblador para la arquitectura MIPS.
+                        Análisis y procedimiento de montaje de un servidor en formato rack. Se centra en 
+                        las diferencias con un PC, como fuentes redundantes, controladoras RAID 
+                        y la instalación de componentes *hot-swap*.
                     </p>
                     
-                    <a href="URL_AL_TRABAJO_2.pdf" class="project-link" target="_blank" rel="noopener noreferrer">
+                    <a href="https://sedanodev.github.io/2asirAFH2526/trabajos/Desmontar%20y%20Montar%20un%20Servidor%20-%20Luis%20Sedano.pdf" class="project-link" target="_blank" rel="noopener noreferrer">
                         Ver Proyecto
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path></svg>
                     </a>
                 </div>
             </div>
+            
             <div class="project-card">
                 <div class="card-content">
-                    <h2>Trabajo 3: Diseño de ALU en VHDL</h2>
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7h-2v2h-2v2h2v2h2v-2h2zm-4 6h-2v2h-2v-2H9v-2h2v-2h2v2h2v2zM7 7H5v2H3V7H1v2h2v2H1v2h2v-2h2v2h2V9H7V7z"></path></svg>
+                        Trabajo 3: Montar un servidor de IA
+                    </h2>
                     
+                    <div class="project-tags">
+                        <span class="tag">Presupuesto</span>
+                        <span class="tag">Servidores</span>
+                        <span class="tag">IA</span>
+                        <span class="tag">GPU</span>
+                    </div>
+
                     <p>
-                        Diseño y simulación de una Unidad Aritmético-Lógica (ALU) de 8 bits
-                        utilizando VHDL, capaz de realizar operaciones lógicas y aritméticas básicas.
+                        Propuesta de presupuesto y selección de componentes para un servidor optimizado 
+                        para cargas de trabajo de *Deep Learning*, con énfasis en GPUs, almacenamiento 
+                        NVMe y ancho de banda PCIe.
                     </p>
                     
                     <a href="URL_AL_TRABAJO_3.pdf" class="project-link" target="_blank" rel="noopener noreferrer">
                         Ver Proyecto
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path></svg>
                     </a>
                 </div>
             </div>
-            </div> </main>
+
+        </div> </main>
 
     <footer class="footer">
-        <p>&copy; 2025 Tu Nombre Completo. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Luis Antonio Sedano Wharton. Todos los derechos reservados.</p>
         <p>Portafolio para Ampliación de Fundamentos del Hardware.</p>
     </footer>
 
