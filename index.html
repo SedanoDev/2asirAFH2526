@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio - Ampliación de Fundamentos del Hardware</title>
+    
+    <style>
+        /* --- Configuración Global y Tipografía --- */
+        :root {
+            --color-primario: #005a9c; /* Azul oscuro profesional */
+            --color-secundario: #007bff; /* Azul brillante para enlaces */
+            --color-fondo: #f4f7f6;     /* Gris muy claro */
+            --color-tarjeta: #ffffff;    /* Blanco */
+            --color-texto: #333333;      /* Gris oscuro para texto */
+            --color-texto-claro: #555555;
+            --sombra: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --borde-radio: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+        }
+
+        /* --- Encabezado --- */
+        .header {
+            background-color: var(--color-primario);
+            color: white;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid #003d6b; /* Un tono más oscuro para profundidad */
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.15rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* --- Contenedor Principal --- */
+        .main-container {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* --- Rejilla de Proyectos (Portfolio) --- */
+        .portfolio-grid {
+            display: grid;
+            /* * Crea columnas automáticas: 
+             * - Intenta que midan 350px.
+             * - Si no caben, se ajustan (mínimo 300px).
+             * - En pantallas pequeñas, se pone una sola columna (1fr).
+             */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem; /* Espacio entre las tarjetas */
+        }
+
+        /* --- Tarjeta de Proyecto Individual --- */
+        .project-card {
+            background-color: var(--color-tarjeta);
+            border-radius: var(--borde-radio);
+            box-shadow: var(--sombra);
+            overflow: hidden; /* Para que el borde redondeado se aplique bien */
+            display: flex;
+            flex-direction: column; /* Alinea contenido verticalmente */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-content {
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Hace que la tarjeta ocupe todo el espacio vertical */
+        }
+
+        .project-card h2 {
+            font-size: 1.5rem;
+            color: var(--color-primario);
+            margin-bottom: 0.75rem;
+        }
+
+        .project-card p {
+            font-size: 1rem;
+            color: var(--color-texto-claro);
+            margin-bottom: 1.5rem;
+            flex-grow: 1; /* Empuja el botón hacia abajo */
+        }
+
+        /* --- Botón de enlace al proyecto --- */
+        .project-link {
+            display: inline-block;
+            background-color: var(--color-secundario);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .project-link:hover {
+            background-color: #0056b3; /* Un poco más oscuro al pasar el ratón */
+            transform: scale(1.03);
+        }
+
+        /* --- Pie de Página --- */
+        .footer {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            margin
