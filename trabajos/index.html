@@ -356,27 +356,29 @@ function generarTarjeta(proyecto) {
 // Cargar y renderizar todos los proyectos
 async function cargarProyectos() {
   const grid = document.getElementById('portfolio-grid');
-  const proyectos = [];
   
-  // Procesar cada archivo
-  for (const archivo of PROYECTOS_FILES) {
+  // Procesar cada archivo en paralelo
+  const promises = PROYECTOS_FILES.map(async (archivo) => {
     if (archivo.endsWith('.html')) {
       // Para archivos HTML, extraer metadata
-      const metadata = await extraerMetadata(archivo);
-      if (metadata) proyectos.push(metadata);
+      return await extraerMetadata(archivo);
     } else if (archivo.endsWith('.pdf')) {
       // Para PDFs, crear metadata básica desde el nombre
       const nombre = archivo.split('/').pop().replace(/%20/g, ' ').replace('.pdf', '');
-      proyectos.push({
+      return {
         titulo: nombre,
         descripcion: 'Documento PDF con información detallada del proyecto',
         tags: ['PDF', 'Documento'],
         url: archivo,
         tipo: 'pdf',
         icono: 'computer'
-      });
+      };
     }
-  }
+    return null;
+  });
+
+  const results = await Promise.all(promises);
+  const proyectos = results.filter(p => p !== null);
   
   // Renderizar todas las tarjetas
   if (proyectos.length > 0) {
