@@ -713,20 +713,6 @@
       detailTableBody.appendChild(rowPc);
     });
 
-    // Tabla OpenAI (misma en todos los acertijos)
-    openaiTableBody.innerHTML = "";
-    const openTimes = computeOpenaiTimes();
-    openaiData.forEach((o, idx) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${idx + 1}</td>
-        <td>${o.tks.toFixed(2)}</td>
-        <td>${o.tokens}</td>
-        <td>${openTimes[idx].toFixed(2)}</td>
-        <td>${o.correct ? "Sí" : "No"}</td>
-      `;
-      openaiTableBody.appendChild(row);
-    });
   }
 
   // Switch de acertijos
@@ -740,6 +726,20 @@
     });
   });
 
+  // Tabla OpenAI (misma en todos los acertijos)
+  openaiTableBody.innerHTML = "";
+  const openTimes = computeOpenaiTimes();
+  openaiData.forEach((o, idx) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${o.tks.toFixed(2)}</td>
+      <td>${o.tokens}</td>
+      <td>${openTimes[idx].toFixed(2)}</td>
+      <td>${o.correct ? "Sí" : "No"}</td>
+    `;
+    openaiTableBody.appendChild(row);
+  });
   updateDashboard(0);
 </script>
 </body>
