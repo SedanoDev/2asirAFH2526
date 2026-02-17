@@ -70,7 +70,7 @@
   /* Main Container */
   .main-container {
     max-width: 1200px;
-    margin: -3rem auto 3rem; /* para subir un poco las tarjetas */
+    margin: -3rem auto 3rem;
     padding: 0 1.5rem;
     flex-grow: 1;
   }
@@ -212,6 +212,14 @@
     transition: 0s;
   }
 
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-texto-claro);
+    font-size: 1.1rem;
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -251,136 +259,136 @@
 </header>
 
 <main class="main-container" role="main">
-  <div class="portfolio-grid" aria-label="Lista de proyectos">
-
-    <article class="project-card" tabindex="0">
-      <div class="card-content">
-        <h2>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"></path>
-          </svg>
-          Trabajo 1: Desmontar y Montar un PC
-        </h2>
-
-        <div class="project-tags">
-          <span class="tag">Hardware</span>
-          <span class="tag">Ensamblaje</span>
-          <span class="tag">Taller</span>
-        </div>
-
-        <p>
-          Informe detallado del proceso de ensamblaje y desensamblaje de un PC de sobremesa.
-          Incluye la identificación de componentes (CPU, RAM, placa base),
-          procedimientos de seguridad antiestática y gestión de cableado.
-        </p>
-
-        <a href="https://sedanodev.github.io/2asirAFH2526/trabajos/Desmontar%20y%20Montar%20un%20PC%20-%20Luis%20Sedano.pdf" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Ver Proyecto Trabajo 1: Desmontar y Montar un PC">
-          Ver Proyecto
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
-          </svg>
-        </a>
-      </div>
-    </article>
-
-    <article class="project-card" tabindex="0">
-      <div class="card-content">
-        <h2>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M3 4c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4zm2 4h14V4H5v4zM3 14c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-4zm2 4h14v-4H5v4z"></path>
-          </svg>
-          Trabajo 2: Desmontar y Montar un Servidor
-        </h2>
-
-        <div class="project-tags">
-          <span class="tag">Hardware</span>
-          <span class="tag">Servidores</span>
-          <span class="tag">RAID</span>
-        </div>
-
-        <p>
-          Análisis y procedimiento de montaje de un servidor en formato rack. Se centra en
-          las diferencias con un PC, como fuentes redundantes, controladoras RAID
-          y la instalación de componentes <em>hot-swap</em>.
-        </p>
-
-        <a href="https://sedanodev.github.io/2asirAFH2526/trabajos/Desmontar%20y%20Montar%20un%20Servidor%20-%20Luis%20Sedano.pdf" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Ver Proyecto Trabajo 2: Desmontar y Montar un Servidor">
-          Ver Proyecto
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
-          </svg>
-        </a>
-      </div>
-    </article>
-
-    <article class="project-card" tabindex="0">
-      <div class="card-content">
-        <h2>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7h-2v2h-2v2h2v2h2v-2h2zm-4 6h-2v2h-2v-2H9v-2h2v-2h2v2h2v2zM7 7H5v2H3V7H1v2h2v2H1v2h2v-2h2v2h2V9H7V7z"></path>
-          </svg>
-          Trabajo 3: Montar un servidor de IA
-        </h2>
-
-        <div class="project-tags">
-          <span class="tag">Presupuesto</span>
-          <span class="tag">Servidores</span>
-          <span class="tag">IA</span>
-          <span class="tag">GPU</span>
-        </div>
-
-        <p>
-          Propuesta de presupuesto y selección de componentes para un servidor optimizado
-          para cargas de trabajo de <em>Deep Learning</em>, con énfasis en GPUs, almacenamiento
-          NVMe y ancho de banda PCIe.
-        </p>
-
-        <a href="https://sedanodev.github.io/2asirAFH2526/trabajos/modelos.html" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Ver Proyecto Trabajo 3: Montar un servidor de IA">
-          Ver Proyecto
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
-          </svg>
-        </a>
-      </div>
-    </article>
-
-    <article class="project-card" tabindex="0">
-      <div class="card-content">
-        <h2>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7h-2v2h-2v2h2v2h2v-2h2zm-4 6h-2v2h-2v-2H9v-2h2v-2h2v2h2v2zM7 7H5v2H3V7H1v2h2v2H1v2h2v-2h2v2h2V9H7V7z"></path>
-          </svg>
-          Trabajo 4: Crear una web estática en Github
-        </h2>
-
-        <div class="project-tags">
-          <span class="tag">HTML</span>
-          <span class="tag">CSS</span>
-          <span class="tag">GitHub Pages</span>
-          <span class="tag">Git</span>
-        </div>
-
-        <p>
-          Desarrollo de este mismo portafolio web estático. Se utilizó HTML5 semántico
-          y CSS moderno (con variables y grid) para su maquetación, y se desplegó
-          gratuitamente usando GitHub Pages.
-        </p>
-
-        <a href="https://github.com/sedanodev/2asirAFH2526" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Ver el repositorio del Trabajo 4">
-          Ver Repositorio
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
-          </svg>
-        </a>
-      </div>
-    </article>
-
-    </div> </main>
+  <div id="portfolio-grid" class="portfolio-grid" aria-label="Lista de proyectos">
+    <div class="loading">⏳ Cargando proyectos...</div>
+  </div>
+</main>
 
 <footer class="footer" role="contentinfo">
   <p>&copy; 2025 Luis Antonio Sedano Wharton.</p>
   <p>Portafolio para la asignatura de Ampliación de Fundamentos del Hardware.</p>
 </footer>
+
+<script>
+// ============================================
+// CONFIGURACIÓN: Lista de archivos a indexar
+// ============================================
+const PROYECTOS_FILES = [
+  'trabajos/AgenteIA.html',
+  'trabajos/cuantizacion.html',
+  'trabajos/modelos.html',
+  'trabajos/Crear una web estática en Github - Luis Sedano.pdf',
+  'trabajos/Desmontar y Montar un PC - Luis Sedano.pdf',
+  'trabajos/Desmontar y Montar un Servidor - Luis Sedano.pdf'
+];
+
+// Mapeo de iconos SVG
+const iconos = {
+  computer: '<path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"></path>',
+  server: '<path d="M3 4c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4zm2 4h14V4H5v4zM3 14c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-4zm2 4h14v-4H5v4z"></path>',
+  cpu: '<path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7h-2v2h-2v2h2v2h2v-2h2zm-4 6h-2v2h-2v-2H9v-2h2v-2h2v2h2v2zM7 7H5v2H3V7H1v2h2v2H1v2h2v-2h2v2h2V9H7V7z"></path>',
+  ai: '<path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"></path>'
+};
+
+// Función para extraer metadata de archivos HTML
+async function extraerMetadata(url) {
+  try {
+    const response = await fetch(url);
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Buscar meta tags personalizadas
+    const metaTitulo = doc.querySelector('meta[name="proyecto-titulo"]');
+    const metaDesc = doc.querySelector('meta[name="proyecto-descripcion"]');
+    const metaTags = doc.querySelector('meta[name="proyecto-tags"]');
+    const metaIcono = doc.querySelector('meta[name="proyecto-icono"]');
+    
+    // Extraer valores o usar fallback
+    const titulo = metaTitulo?.content || doc.querySelector('title')?.textContent || 'Sin título';
+    const descripcion = metaDesc?.content || 'Proyecto web interactivo';
+    const tags = metaTags?.content.split(',').map(t => t.trim()) || ['HTML', 'Web'];
+    const icono = metaIcono?.content || 'computer';
+    
+    return {
+      titulo: titulo,
+      descripcion: descripcion,
+      tags: tags,
+      url: url,
+      tipo: 'web',
+      icono: icono
+    };
+  } catch (error) {
+    console.error(`Error cargando ${url}:`, error);
+    return null;
+  }
+}
+
+// Función para generar HTML de una tarjeta
+function generarTarjeta(proyecto) {
+  const icono = iconos[proyecto.icono] || iconos.cpu;
+  const tags = proyecto.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+  const textoBtn = proyecto.tipo === 'pdf' ? 'Ver Documento' : 
+                   proyecto.tipo === 'repo' ? 'Ver Repositorio' : 'Ver Proyecto';
+  
+  return `
+    <article class="project-card" tabindex="0">
+      <div class="card-content">
+        <h2>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            ${icono}
+          </svg>
+          ${proyecto.titulo}
+        </h2>
+        <div class="project-tags">${tags}</div>
+        <p>${proyecto.descripcion}</p>
+        <a href="${proyecto.url}" class="project-link" target="_blank" rel="noopener noreferrer" aria-label="Ver ${proyecto.titulo}">
+          ${textoBtn}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M19 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"></path>
+          </svg>
+        </a>
+      </div>
+    </article>
+  `;
+}
+
+// Cargar y renderizar todos los proyectos
+async function cargarProyectos() {
+  const grid = document.getElementById('portfolio-grid');
+  const proyectos = [];
+  
+  // Procesar cada archivo
+  for (const archivo of PROYECTOS_FILES) {
+    if (archivo.endsWith('.html')) {
+      // Para archivos HTML, extraer metadata
+      const metadata = await extraerMetadata(archivo);
+      if (metadata) proyectos.push(metadata);
+    } else if (archivo.endsWith('.pdf')) {
+      // Para PDFs, crear metadata básica desde el nombre
+      const nombre = archivo.split('/').pop().replace(/%20/g, ' ').replace('.pdf', '');
+      proyectos.push({
+        titulo: nombre,
+        descripcion: 'Documento PDF con información detallada del proyecto',
+        tags: ['PDF', 'Documento'],
+        url: archivo,
+        tipo: 'pdf',
+        icono: 'computer'
+      });
+    }
+  }
+  
+  // Renderizar todas las tarjetas
+  if (proyectos.length > 0) {
+    grid.innerHTML = proyectos.map(p => generarTarjeta(p)).join('');
+  } else {
+    grid.innerHTML = '<div class="loading">⚠️ No se encontraron proyectos</div>';
+  }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', cargarProyectos);
+</script>
 
 </body>
 </html>
