@@ -541,5 +541,73 @@
   <p>Portafolio para la asignatura de Ampliación de Fundamentos del Hardware.</p>
 </footer>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.project-card');
+
+    cards.forEach(async (card) => {
+      const link = card.querySelector('.project-link');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http') || href.endsWith('.pdf')) return;
+
+      let url = href;
+      if (!url.endsWith('.html')) url += '.html';
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Extract metadata securely
+        const metaTitulo = doc.querySelector('meta[name="proyecto-titulo"]');
+        const metaDesc = doc.querySelector('meta[name="proyecto-descripcion"]');
+        const metaTags = doc.querySelector('meta[name="proyecto-tags"]');
+
+        // Update Title (preserve SVG icon)
+        if (metaTitulo && metaTitulo.content) {
+          const h2 = card.querySelector('h2');
+          if (h2) {
+            const svg = h2.querySelector('svg');
+            h2.textContent = ''; // Clear content
+            if (svg) h2.appendChild(svg); // Restore icon
+            h2.appendChild(document.createTextNode(' ' + metaTitulo.content)); // Add secure text
+          }
+        }
+
+        // Update Description
+        if (metaDesc && metaDesc.content) {
+          const p = card.querySelector('p');
+          if (p) p.textContent = metaDesc.content; // Secure text update
+        }
+
+        // Update Tags
+        if (metaTags && metaTags.content) {
+          const tagsContainer = card.querySelector('.project-tags');
+          if (tagsContainer) {
+            tagsContainer.innerHTML = ''; // Clear existing tags
+            const tags = metaTags.content.split(',').map(t => t.trim());
+            tags.forEach(tag => {
+              if (tag) {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.textContent = tag; // Secure text content
+                tagsContainer.appendChild(span);
+              }
+            });
+          }
+        }
+
+      } catch (error) {
+        console.warn('Error loading metadata for project:', href, error);
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
