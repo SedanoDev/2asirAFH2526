@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual: Agente IA Local con LM Studio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1>🤖 Agente IA Local con LM Studio</h1>
+                <ul class="nav-links">
+                    <li><a href="#introduccion">Introducción</a></li>
+                    <li><a href="#configuracion">Configuración</a></li>
+                    <li><a href="#capturas">Capturas</a></li>
+                    <li><a href="#problemas">Problemas</a></li>
+                    <li><a href="#aprendizajes">Aprendizajes</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="introduccion" class="section">
+            <h2>📚 Introducción</h2>
+            <div class="info-box">
+                <p><strong>Práctica:</strong> Implementación de Agente IA Local</p>
+                <p><strong>Fecha:</strong> 15 de enero de 2026</p>
+                <p><strong>Objetivo:</strong> Configurar y utilizar un agente de IA con modelo local ejecutándose en GPU</p>
+            </div>
+
+            <h3>Stack tecnológico</h3>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <h4>🖥️ LM Studio</h4>
+                    <p>Plataforma para ejecutar LLMs localmente con servidor API.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>💻 Continue</h4>
+                    <p>Extensión de VS Code para chat con agentes IA.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>🧠 Deepseek Coder V2</h4>
+                    <p>Modelo especializado (11.45 GB, Q4_K_M).</p>
+                </div>
+                <div class="tool-card">
+                    <h4>🎮 RTX 5060 Ti</h4>
+                    <p>GPU con 16GB VRAM.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuracion" class="section">
+            <h2>⚙️ Configuración</h2>
+
+            <h3>Hardware</h3>
+            <div class="specs-table">
+                <table>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Especificación</th>
+                    </tr>
+                    <tr>
+                        <td>GPU</td>
+                        <td>NVIDIA GeForce RTX 5060 Ti</td>
+                    </tr>
+                    <tr>
+                        <td>VRAM</td>
+                        <td>16 GB</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>Pasos realizados</h3>
+            <ol>
+                <li>Instalar LM Studio</li>
+                <li>Descargar modelo deepseek-coder-v2-lite-instruct (Q4_K_M, 11.45 GB)</li>
+                <li>Iniciar servidor local en http://192.168.1.102:1234</li>
+                <li>Instalar extensión Continue en VS Code</li>
+                <li>Configurar Continue:
+                    <ul>
+                        <li>API Provider: LM Studio</li>
+                        <li>Model ID: deepseek-coder-v2-lite-instruct</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Configuración de LM Studio y Continue</h3>
+            <img src="imagenes/settings.png" alt="Configuración de LM Studio y Continue" class="screenshot">
+            <p>La imagen muestra:</p>
+            <ul>
+                <li><strong>LM Studio:</strong> Modelo deepseek-coder-v2-lite-instruct cargado</li>
+                <li><strong>Tamaño:</strong> 11.45 GB</li>
+                <li><strong>Cuantización:</strong> Q4_K_M</li>
+                <li><strong>Servidor:</strong> http://192.168.1.102:1234 (activo)</li>
+                <li><strong>VS Code:</strong> Continue configurado con API Provider = LM Studio</li>
+                <li><strong>Model ID:</strong> deepseek-coder-v2-lite-instruct</li>
+            </ul>
+        </section>
+
+        <section id="capturas" class="section">
+            <h2>📸 Análisis de Capturas</h2>
+
+            <h3>Chat con el agente</h3>
+            <img src="imagenes/chat.png" alt="Chat preguntando hola" class="screenshot">
+            <p>En esta captura se observa:</p>
+            <ul>
+                <li><strong>Tarea creada:</strong> "Task: Hola"</li>
+                <li><strong>Respuesta del agente:</strong> "It seems like you're starting a new project, but it looks like there are no files in the current..."</li>
+                <li><strong>Problema detectado:</strong> El agente indicó que no había archivos en el workspace de VS Code</li>
+            </ul>
+
+            <h3>Consumo de GPU al preguntar "hola"</h3>
+            <img src="imagenes/consumopregunta.png" alt="Consumo GPU pregunta hola" class="screenshot">
+            <p>Task Manager mostrando el rendimiento cuando se pregunta "hola":</p>
+            <ul>
+                <li><strong>GPU:</strong> NVIDIA GeForce RTX 5060 Ti</li>
+                <li><strong>Utilización:</strong> 99%</li>
+                <li><strong>VRAM:</strong> 15.4 / 16.0 GB ocupada (96%)</li>
+                <li><strong>Temperatura:</strong> 40°C</li>
+            </ul>
+
+            <h3>Consumo de GPU al generar código</h3>
+            <img src="imagenes/consumo.png" alt="Consumo GPU al generar código" class="screenshot">
+            <p>Task Manager durante la generación de código:</p>
+            <ul>
+                <li><strong>Utilización GPU:</strong> 100%</li>
+                <li><strong>VRAM:</strong> 15.4 / 16.0 GB ocupada</li>
+                <li><strong>Temperatura:</strong> 40°C (estable)</li>
+                <li><strong>Código visible:</strong> <code>def sumar(a, b): return a + b</code></li>
+            </ul>
+
+            <h3>Métricas observadas</h3>
+            <div class="specs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Escenario</th>
+                            <th>Utilización GPU</th>
+                            <th>VRAM ocupada</th>
+                            <th>Temperatura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pregunta "hola"</td>
+                            <td>99%</td>
+                            <td>15.4 GB</td>
+                            <td>40°C</td>
+                        </tr>
+                        <tr>
+                            <td>Generación código</td>
+                            <td>100%</td>
+                            <td>15.4 GB</td>
+                            <td>40°C</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="problemas" class="section">
+            <h2>❌ Problemas Encontrados</h2>
+
+            <div class="problem-card">
+                <h3>Problema 1: Error "no files in current..."</h3>
+                <div class="problem-description">
+                    <p><strong>Visible en:</strong> chat.png</p>
+                    <p><strong>Descripción:</strong> El agente respondió que no había archivos en el workspace.</p>
+                    <p><strong>Causa:</strong> VS Code no tenía ninguna carpeta de proyecto abierta.</p>
+                </div>
+                <div class="solution">
+                    <p><strong>✅ Solución:</strong></p>
+                    <ul>
+                        <li>Abrir VS Code en una carpeta de proyecto: <code>code /ruta/proyecto</code></li>
+                        <li>O usar File → Open Folder (Ctrl+K Ctrl+O)</li>
+                        <li>Los agentes funcionan mejor cuando tienen contexto de archivos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="problem-card">
+                <h3>Problema 2: VRAM casi saturada</h3>
+                <div class="problem-description">
+                    <p><strong>Visible en:</strong> consumopregunta.png y consumo.png</p>
+                    <p><strong>Descripción:</strong> VRAM en 15.4/16.0 GB (96% ocupada).</p>
+                    <p><strong>Implicación:</strong> Solo quedan 0.6 GB libres, sin margen para otras aplicaciones GPU.</p>
+                </div>
+                <div class="solution">
+                    <p><strong>✅ Recomendaciones:</strong></p>
+                    <ul>
+                        <li>Usar modelos cuantizados (Q4_K_M) en lugar de versiones completas</li>
+                        <li>Cerrar navegadores y apps que usen GPU antes de ejecutar el modelo</li>
+                        <li>Para uso profesional, considerar GPU con 24GB+ de VRAM</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="problem-card">
+                <h3>Observación: GPU al máximo con temperatura baja</h3>
+                <div class="problem-description">
+                    <p><strong>Visible en:</strong> consumopregunta.png y consumo.png</p>
+                    <p><strong>Dato:</strong> GPU al 99-100% de utilización pero temperatura de solo 40°C.</p>
+                    <p><strong>Análisis:</strong> Esto es positivo, indica buena refrigeración del sistema.</p>
+                </div>
+                <div class="solution">
+                    <p><strong>✅ Conclusión:</strong></p>
+                    <ul>
+                        <li>La inferencia de modelos LLM no genera tanto calor como gaming</li>
+                        <li>El sistema tiene buena ventilación</li>
+                        <li>No hay riesgo de throttling térmico</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="aprendizajes" class="section">
+            <h2>💡 Aprendizajes</h2>
+
+            <div class="learning-category">
+                <h3>🔧 Técnicos</h3>
+                <ul class="learning-list">
+                    <li><strong>Cuantización esencial:</strong> El modelo Q4_K_M de 11.45 GB permite ejecutarlo en 16GB de VRAM. La versión sin cuantizar no cabría.</li>
+                    <li><strong>VRAM limitada:</strong> Con 15.4 GB usados de 16 GB totales, hay muy poco margen. 16GB es el mínimo absoluto para este tipo de modelos.</li>
+                    <li><strong>GPU al máximo es normal:</strong> Los modelos LLM usan toda la capacidad disponible durante la inferencia.</li>
+                    <li><strong>Temperatura engañosa:</strong> 40°C con 100% de uso demuestra que la inferencia no es tan térmica como otras cargas GPU.</li>
+                    <li><strong>Contexto importa:</strong> El error "no files" muestra que los agentes necesitan archivos en el workspace para funcionar bien.</li>
+                </ul>
+            </div>
+
+            <div class="learning-category">
+                <h3>📚 De proceso</h3>
+                <ul class="learning-list">
+                    <li><strong>Monitorización necesaria:</strong> Task Manager fue esencial para ver el uso real de recursos.</li>
+                    <li><strong>Leer mensajes del agente:</strong> El mensaje "no files in current..." fue una pista clara del problema.</li>
+                    <li><strong>Capturar pantallas:</strong> Documentar configuración, chat y Task Manager ayuda a analizar después.</li>
+                </ul>
+            </div>
+
+            <div class="best-practices">
+                <h3>✅ Mejores prácticas</h3>
+                <ol>
+                    <li><strong>Abrir carpeta de proyecto:</strong> Siempre tener un workspace cargado en VS Code antes de usar el agente</li>
+                    <li><strong>Cerrar apps GPU:</strong> Navegadores y juegos antes de iniciar el modelo</li>
+                    <li><strong>Monitorizar recursos:</strong> Tener Task Manager visible para controlar VRAM</li>
+                    <li><strong>Modelos cuantizados:</strong> Usar Q4_K_M o similar para optimizar uso de VRAM</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="conclusiones" class="section">
+            <h2>🎯 Conclusiones</h2>
+
+            <div class="conclusion-box">
+                <p>La práctica demostró que es posible ejecutar agentes IA locales en una RTX 5060 Ti de 16GB. El sistema <strong>LM Studio + Continue + deepseek-coder</strong> funcionó correctamente, aunque con la VRAM muy ajustada.</p>
+
+                <h3>Puntos positivos</h3>
+                <ul>
+                    <li>✅ Configuración exitosa y modelo funcional</li>
+                    <li>✅ Temperatura excelente (40°C) pese al 100% de uso</li>
+                    <li>✅ Código generado correctamente (función Python)</li>
+                    <li>✅ Privacidad total: modelo ejecutándose localmente</li>
+                </ul>
+
+                <h3>Limitaciones</h3>
+                <ul>
+                    <li>⚠️ VRAM casi al límite (15.4/16 GB - 96%)</li>
+                    <li>⚠️ Poco margen para multitarea GPU</li>
+                    <li>⚠️ Necesita workspace con archivos para funcionar bien</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-box">
+                <h3>📢 Recomendación</h3>
+                <p>Una RTX 5060 Ti de 16GB es suficiente para experimentar con modelos cuantizados, pero para uso profesional continuo se recomienda 24GB+ de VRAM.</p>
+            </div>
+        </section>
+
+        <section id="recursos" class="section">
+            <h2>🔗 Recursos</h2>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h4>📖 Documentación</h4>
+                    <ul>
+                        <li><a href="https://lmstudio.ai/docs" target="_blank">LM Studio</a></li>
+                        <li><a href="https://www.continue.dev/docs" target="_blank">Continue</a></li>
+                        <li><a href="https://github.com/deepseek-ai/DeepSeek-Coder" target="_blank">DeepSeek Coder</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Manual creado por Luis - ASIR 2º año | Práctica: Agentes IA Locales (15 enero 2026)</p>
+            <p>Jerez de la Frontera, Andalucía</p>
+        </div>
+    </footer>
+</body>
+</html>
