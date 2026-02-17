@@ -46,7 +46,6 @@ html {
 
 body {
     font-family: var(--font-main);
-    font-size: 16px;
     line-height: 1.6;
     color: var(--text-primary);
     background-color: var(--bg-secondary);
@@ -548,7 +547,7 @@ footer a {
 
 @media (max-width: 480px) {
     body {
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 
     nav h1 {
