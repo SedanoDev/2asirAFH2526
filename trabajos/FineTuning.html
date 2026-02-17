@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- METADATA PARA EL INDEX -->
+  <meta name="proyecto-titulo" content="Fine-Tuning de Modelos LLM">
+  <meta name="proyecto-descripcion" content="Especialización de modelos de lenguaje mediante LoRA/QLoRA: de modelo generalista a experto en dominio específico">
+  <meta name="proyecto-tags" content="IA,Fine-tuning,LoRA,PEFT,Machine Learning,Unsloth">
+  <meta name="proyecto-icono" content="ai">
+  
+  <title>Fine-Tuning LLM - Luis Sedano</title>
+  
+  <style>
+    :root {
+      --color-primario: #8b5cf6;
+      --color-secundario: #ec4899;
+      --color-acento: #14b8a6;
+      --color-success: #22c55e;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+      --color-fondo: #0a0a0f;
+      --color-fondo-claro: #18181b;
+      --color-tarjeta: #18181b;
+      --color-texto: #f4f4f5;
+      --color-texto-claro: #a1a1aa;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.7;
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      overflow-x: hidden;
+    }
+
+    .background-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+      color: white;
+      padding: 4rem 3rem;
+      border-radius: 24px;
+      margin-bottom: 3rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-shadow: 2px 4px 12px rgba(0,0,0,0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      opacity: 0.95;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      color: var(--color-acento);
+      margin: 3rem 0 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--color-primario);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    h3 {
+      font-size: 1.6rem;
+      color: var(--color-secundario);
+      margin: 2.5rem 0 1rem;
+      font-weight: 700;
+    }
+
+    h4 {
+      font-size: 1.2rem;
+      color: var(--color-acento);
+      margin: 1.5rem 0 0.8rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--color-tarjeta);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInUp 0.6s ease-out backwards;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px -15px rgba(139, 92, 246, 0.4);
+      border-color: var(--color-primario);
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
+    .card:nth-child(5) { animation-delay: 0.4s; }
+
+    .card-highlight {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+      border: 2px solid var(--color-primario);
+    }
+
+    .card-icon {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      font-size: 3rem;
+      opacity: 0.2;
+    }
+
+    .imagen-container {
+      margin: 3rem 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+      border: 2px solid rgba(139, 92, 246, 0.3);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      background: var(--color-fondo-claro);
+    }
+
+    .imagen-container:hover {
+      transform: scale(1.02) translateY(-5px);
+      box-shadow: 0 25px 70px rgba(139, 92, 246, 0.5);
+      border-color: var(--color-primario);
+    }
+
+    .imagen-container img {
+      width: 100%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .imagen-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .caption {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem;
+      font-size: 1rem;
+      color: var(--color-texto-claro);
+      font-style: italic;
+      border-top: 2px solid rgba(139, 92, 246, 0.5);
+    }
+
+    .comparacion {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 2.5rem 0;
+    }
+
+    .comparacion-item {
+      background: rgba(139, 92, 246, 0.1);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 2px solid rgba(139, 92, 246, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .comparacion-item:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-primario);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .comparacion-item h4 {
+      margin-top: 0;
+      color: var(--color-primario);
+    }
+
+    .pros-contras {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .pros, .contras {
+      padding: 2rem;
+      border-radius: 16px;
+      border: 2px solid;
+    }
+
+    .pros {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: var(--color-success);
+    }
+
+    .contras {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--color-danger);
+    }
+
+    .pros h4 { color: var(--color-success); }
+    .contras h4 { color: var(--color-danger); }
+
+    code {
+      background: rgba(139, 92, 246, 0.2);
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    pre {
+      background: #0a0a0f;
+      color: #e4e4e7;
+      padding: 2rem;
+      border-radius: 16px;
+      overflow-x: auto;
+      margin: 2rem 0;
+      box-shadow: inset 0 2px 15px rgba(0,0,0,0.6);
+      border: 2px solid rgba(139, 92, 246, 0.3);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+
+    ul, ol {
+      margin: 1.5rem 0 1.5rem 2.5rem;
+    }
+
+    li {
+      margin-bottom: 0.8rem;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.3));
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      font-weight: 700;
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .info-box, .warning-box, .success-box, .danger-box {
+      padding: 2rem;
+      border-radius: 16px;
+      margin: 2.5rem 0;
+      border-left: 5px solid;
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .info-box {
+      background: rgba(20, 184, 166, 0.15);
+      border-left-color: var(--color-acento);
+    }
+
+    .warning-box {
+      background: rgba(245, 158, 11, 0.15);
+      border-left-color: var(--color-warning);
+    }
+
+    .success-box {
+      background: rgba(34, 197, 94, 0.15);
+      border-left-color: var(--color-success);
+    }
+
+    .danger-box {
+      background: rgba(239, 68, 68, 0.15);
+      border-left-color: var(--color-danger);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 2px solid rgba(139, 92, 246, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px) scale(1.05);
+      border-color: var(--color-primario);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--color-acento);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--color-texto-claro);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .recursos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .recurso-card {
+      background: rgba(139, 92, 246, 0.1);
+      padding: 2rem;
+      border-radius: 20px;
+      border: 2px solid rgba(139, 92, 246, 0.3);
+      transition: all 0.4s ease;
+    }
+
+    .recurso-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4);
+      border-color: var(--color-primario);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .recurso-card h4 {
+      color: var(--color-acento);
+      margin-bottom: 1rem;
+    }
+
+    .recurso-card a {
+      color: var(--color-primario);
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-word;
+      transition: color 0.3s ease;
+    }
+
+    .recurso-card a:hover {
+      color: var(--color-acento);
+      text-decoration: underline;
+    }
+
+    .paso {
+      position: relative;
+      padding-left: 5rem;
+      margin-bottom: 3rem;
+    }
+
+    .paso-numero {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .lightbox.active { display: flex; }
+
+    .lightbox img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 16px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      color: white;
+      font-size: 3.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10000;
+    }
+
+    .lightbox-close:hover {
+      transform: scale(1.3) rotate(90deg);
+      color: var(--color-danger);
+    }
+
+    .scroll-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+      font-size: 1.5rem;
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-8px) scale(1.1);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.8);
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.6rem; }
+      header { padding: 3rem 2rem; }
+      .card { padding: 2rem; }
+      .pros-contras { grid-template-columns: 1fr; }
+      .paso { padding-left: 0; padding-top: 5rem; }
+      .paso-numero { left: 50%; transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="background-gradient"></div>
+
+<div class="container">
+  <header>
+    <h1>🎯 Fine-Tuning de Modelos LLM</h1>
+    <p class="subtitle">De modelo generalista a experto especializado mediante LoRA/QLoRA</p>
+    <p class="subtitle"><strong>Luis Antonio Sedano Wharton</strong> • Ampliación de Fundamentos del Hardware</p>
+  </header>
+
+  <div class="card card-highlight">
+    <span class="card-icon">🧠</span>
+    <h2>¿Qué es el Fine-Tuning?</h2>
+    <p>El <strong>fine-tuning</strong> es el proceso de tomar un modelo de IA pre-entrenado a gran escala y continuar su entrenamiento con un dataset pequeño y específico para especializarlo en una tarea, estilo o dominio particular.</p>
+    
+    <div class="info-box">
+      <strong>🔑 Concepto clave:</strong> No se entrena desde cero. Se parte de una base de conocimiento gigantesca (ej. Llama 3, Mistral) y se "ajusta finamente", ahorrando tiempo y recursos computacionales masivos.
+    </div>
+
+    <p><strong>Analogía:</strong> Un modelo pre-entrenado es como un recién graduado con conocimiento general del mundo. El fine-tuning es darle formación especializada en un campo concreto (medicina, derecho, fútbol) para convertirlo en un profesional experto.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">50</span>
+        <span class="stat-label">Épocas entrenamiento</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">95s</span>
+        <span class="stat-label">Tiempo por bloque</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">15.2GB</span>
+        <span class="stat-label">Modelo final GGUF</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">7.86</span>
+        <span class="stat-label">Tokens/segundo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Beneficios del Fine-Tuning</h2>
+    
+    <div class="comparacion">
+      <div class="comparacion-item">
+        <h4>🧑‍🔬 Especialización</h4>
+        <p>Convertir un modelo generalista en un experto. Un modelo afinado con textos médicos puede resumir historiales clínicos con terminología correcta.</p>
+      </div>
+      
+      <div class="comparacion-item">
+        <h4>✍️ Adaptación de Estilo</h4>
+        <p>Hacer que el modelo hable con una personalidad específica: formal empresarial, creativo, técnico o imitando un estilo particular.</p>
+      </div>
+      
+      <div class="comparacion-item">
+        <h4>✅ Mejora de Precisión</h4>
+        <p>Aumentar drásticamente el rendimiento en tareas como clasificación, extracción de información o generación de código especializado.</p>
+      </div>
+      
+      <div class="comparacion-item">
+        <h4>🛡️ Control de Contenido</h4>
+        <p>Reducir sesgos y guiar el comportamiento del modelo con ejemplos "correctos" alineados con directrices específicas.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧩 Ingredientes Clave</h2>
+    
+    <h3>1. Modelo Base Pre-entrenado</h3>
+    <p>El punto de partida. La elección es crucial: algunos modelos son mejores para tareas creativas, otros para razonamiento lógico o código.</p>
+    <ul>
+      <li><strong>Llama 3:</strong> Equilibrado para múltiples tareas</li>
+      <li><strong>Mistral 7B:</strong> Excelente relación rendimiento/tamaño</li>
+      <li><strong>Qwen2:</strong> Optimizado para multilingüe</li>
+      <li><strong>Gemma:</strong> Eficiente en recursos limitados</li>
+    </ul>
+
+    <h3>2. Dataset de Alta Calidad 👑</h3>
+    <p>El <span class="highlight">ingrediente MÁS importante</span>. El éxito depende casi completamente de la calidad de los datos.</p>
+    
+    <div class="warning-box">
+      <strong>⚠️ Principio fundamental:</strong> <em>"Garbage in, garbage out"</em> (basura entra, basura sale). 500 ejemplos de calidad excelente superan a 50,000 ejemplos mediocres.
+    </div>
+
+    <p><strong>Características del dataset ideal:</strong></p>
+    <ul>
+      <li>🧹 <strong>Limpio:</strong> Sin errores, duplicados ni texto irrelevante</li>
+      <li>🎯 <strong>Relevante:</strong> Directamente relacionado con la tarea objetivo</li>
+      <li>📋 <strong>Estructurado:</strong> Formato instruction → output consistente</li>
+      <li>📊 <strong>Balanceado:</strong> Diversidad de casos y escenarios</li>
+    </ul>
+
+    <pre><code>{
+  "instruction": "Explica el fuera de juego en fútbol",
+  "output": "El fuera de juego se produce cuando..."
+}</code></pre>
+
+    <h3>3. Recursos Computacionales</h3>
+    <p>GPU potente (mínimo 8GB VRAM). El fine-tuning, aunque menos intensivo que el pre-entrenamiento, requiere capacidad de cómputo para actualizar parámetros eficientemente.</p>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ Tipos de Fine-Tuning</h2>
+    
+    <div class="pros-contras">
+      <div class="pros">
+        <h4>✅ PEFT (LoRA/QLoRA)</h4>
+        <p><strong>Parameter-Efficient Fine-Tuning</strong></p>
+        <ul>
+          <li>💰 Mucho más barato y rápido</li>
+          <li>💾 Requiere menos VRAM (accesible)</li>
+          <li>📦 Genera adaptadores pequeños (MB)</li>
+          <li>🔄 Flexible: enchufar/quitar adaptadores</li>
+          <li>🛡️ Evita catastrophic forgetting</li>
+        </ul>
+        <p><em>Se congela el modelo base y se entrena una capa pequeña de parámetros nuevos.</em></p>
+      </div>
+      
+      <div class="contras">
+        <h4>❌ Full Fine-Tuning</h4>
+        <p><strong>Ajuste Completo de Parámetros</strong></p>
+        <ul>
+          <li>💸 Extremadamente costoso</li>
+          <li>🖥️ Requiere GPUs de alta VRAM</li>
+          <li>⏱️ Proceso muy lento</li>
+          <li>📦 Modelo final igual de grande</li>
+          <li>⚠️ Riesgo de overfitting alto</li>
+        </ul>
+        <p><em>Se re-entrenan y modifican TODOS los parámetros del modelo original.</em></p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Recomendación:</strong> Para proyectos locales y recursos limitados, <strong>LoRA/QLoRA es la opción ideal</strong>. QLoRA añade cuantización adicional para reducir aún más el uso de memoria.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Riesgos y Consideraciones</h2>
+    
+    <h3>🔴 Overfitting (Sobreajuste)</h3>
+    <p>El modelo "memoriza" respuestas específicas en lugar de aprender a razonar. Se vuelve experto en datos de entrenamiento pero falla con preguntas nuevas.</p>
+    
+    <div class="danger-box">
+      <strong>Soluciones:</strong>
+      <ul>
+        <li>Usar conjunto de validación para monitorear</li>
+        <li>Implementar early stopping</li>
+        <li>Ajustar learning rate y epochs</li>
+        <li>Aumentar diversidad del dataset</li>
+      </ul>
+    </div>
+
+    <h3>💥 Catastrophic Forgetting</h3>
+    <p>Al especializarse demasiado, el modelo olvida conocimiento general. Un modelo afinado solo en textos legales pierde habilidad para conversación casual.</p>
+    
+    <div class="success-box">
+      <strong>✅ Ventaja de LoRA:</strong> Es intrínsecamente más resistente a este problema ya que no modifica el modelo base, solo añade conocimiento especializado.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔬 Proyecto Práctico: FútbolAI</h2>
+    <p>Fine-tuning de un asistente experto en táctica e historia del fútbol usando <strong>Unsloth + LoRA</strong>.</p>
+
+    <div class="paso">
+      <div class="paso-numero">1</div>
+      <h3>Entrenamiento con Unsloth</h3>
+      <p>Proceso de fine-tuning sobre modelo base <strong>Qwen2</strong> con dataset especializado en fútbol.</p>
+      
+      <div class="imagen-container" onclick="openLightbox('imagenes/ft1.png')">
+        <img src="imagenes/ft1.png" alt="Entrenamiento con Unsloth">
+        <div class="caption">📊 Logs de entrenamiento: 50 épocas completadas con loss estable ~0.013</div>
+      </div>
+
+      <ul>
+        <li>⚡ <strong>Framework:</strong> Unsloth (optimizado 2x más rápido)</li>
+        <li>🔄 <strong>Épocas:</strong> 50 ciclos de entrenamiento</li>
+        <li>📉 <strong>Loss estable:</strong> ~0.013 (modelo aprendiendo correctamente)</li>
+        <li>⏱️ <strong>Tiempo:</strong> ~95 segundos por bloque</li>
+      </ul>
+    </div>
+
+    <div class="paso">
+      <div class="paso-numero">2</div>
+      <h3>Fusión de Pesos LoRA</h3>
+      <p>Integración de adaptadores LoRA con el modelo base para crear un modelo autónomo.</p>
+      
+      <div class="imagen-container" onclick="openLightbox('imagenes/ft2.png')">
+        <img src="imagenes/ft2.png" alt="Fusión del modelo">
+        <div class="caption">🔗 Guardado del modelo fusionado usando GPU NVIDIA RTX 4070 Ti</div>
+      </div>
+
+      <pre><code># Fusión de adaptadores
+model.save_pretrained_merged(
+    "./futbol_model_merged",
+    tokenizer,
+    save_method="merged_16bit"
+)</code></pre>
+
+      <div class="success-box">
+        <strong>🖥️ Hardware utilizado:</strong> NVIDIA RTX 4070 Ti<br>
+        El modelo fusionado integra los pesos LoRA en el base, eliminando dependencias externas.
+      </div>
+    </div>
+
+    <div class="paso">
+      <div class="paso-numero">3</div>
+      <h3>Conversión a GGUF</h3>
+      <p>Optimización final para ejecución local eficiente usando <strong>llama.cpp</strong>.</p>
+      
+      <div class="imagen-container" onclick="openLightbox('imagenes/ft3.png')">
+        <img src="imagenes/ft3.png" alt="Conversión GGUF">
+        <div class="caption">📦 Conversión a formato GGUF: futbol-assistant-f16.gguf (15.2 GB)</div>
+      </div>
+
+      <pre><code>python llama.cpp/convert-hf-to-gguf.py \
+  ./futbol_model_merged/ \
+  --outfile futbol-assistant-f16.gguf \
+  --outtype f16</code></pre>
+
+      <ul>
+        <li>📁 <strong>Archivo final:</strong> futbol-assistant-f16.gguf</li>
+        <li>💾 <strong>Tamaño:</strong> 15.2 GB (16-bit precision)</li>
+        <li>✅ <strong>Compatible con:</strong> LM Studio, Ollama, llama.cpp</li>
+      </ul>
+    </div>
+
+    <div class="paso">
+      <div class="paso-numero">4</div>
+      <h3>Configuración del System Prompt</h3>
+      <p>Definición de la personalidad y especialización del modelo en LM Studio.</p>
+      
+      <div class="imagen-container" onclick="openLightbox('imagenes/ft4.png')">
+        <img src="imagenes/ft4.png" alt="System Prompt">
+        <div class="caption">💬 Configuración de personalidad: FútbolAI experto en táctica e historia</div>
+      </div>
+
+      <div class="info-box">
+        <strong>System Prompt definido:</strong><br>
+        <em>"Eres FútbolAI, un experto apasionado en táctica e historia del fútbol. Respondes con precisión técnica, menciones históricas y análisis estratégico."</em>
+      </div>
+    </div>
+
+    <div class="paso">
+      <div class="paso-numero">5</div>
+      <h3>Prueba de Inferencia</h3>
+      <p>Validación del modelo entrenado con consulta sobre táctica 4-3-3.</p>
+      
+      <div class="imagen-container" onclick="openLightbox('imagenes/ft5.png')">
+        <img src="imagenes/ft5.png" alt="Inferencia del modelo">
+        <div class="caption">✅ Respuesta experta: Explicación detallada del 4-3-3 con ejemplos históricos</div>
+      </div>
+
+      <div class="success-box">
+        <strong>🎯 Resultados de inferencia:</strong><br>
+        ⚡ Velocidad: <strong>7.86 tokens/segundo</strong><br>
+        ✅ Calidad: Respuesta técnica precisa sobre 4-3-3<br>
+        🏆 Contexto: Menciona "falso 9" y Barcelona de Guardiola<br>
+        💡 Conclusión: <strong>Fine-tuning exitoso</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Recursos Adicionales</h2>
+    <div class="recursos">
+      <div class="recurso-card">
+        <h4>🎥 Gemma 3 270M Fine-Tuning</h4>
+        <a href="https://www.youtube.com/watch?v=3udsYrPheOw" target="_blank">Tutorial en YouTube</a>
+        <p>Guía práctica de fine-tuning con Gemma 3 y ajustes en RunPod</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>☁️ Noebius Cloud</h4>
+        <a href="https://youtu.be/pddeyCqevnw?si=b1e_fd9t_NX_Jk2a" target="_blank">Fine-tuning en la nube</a>
+        <p>Plataforma de pago para fine-tuning simplificado sin configuración local</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>🔧 Axolotl</h4>
+        <a href="https://github.com/OpenAccess-AI-Collective/axolotl" target="_blank">Framework de fine-tuning</a>
+        <p>Herramienta que simplifica el proceso con configuración YAML</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>🦙 Unsloth</h4>
+        <a href="https://github.com/unslothai/unsloth" target="_blank">Optimización 2x faster</a>
+        <p>Framework optimizado para fine-tuning eficiente con LoRA/QLoRA</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✨ Conclusiones</h2>
+    <ul>
+      <li>✅ El fine-tuning transforma modelos generalistas en <strong>expertos especializados</strong></li>
+      <li>✅ <strong>LoRA/QLoRA</strong> hace el proceso accesible con hardware de consumo</li>
+      <li>✅ La <strong>calidad del dataset</strong> es el factor más crítico para el éxito</li>
+      <li>✅ <strong>Unsloth</strong> ofrece optimizaciones 2x más rápidas que el estándar</li>
+      <li>✅ El formato <strong>GGUF</strong> permite ejecución local eficiente</li>
+      <li>✅ Proyecto FútbolAI demuestra especialización exitosa en <strong>dominio específico</strong></li>
+      <li>✅ Velocidad de inferencia competitiva: <strong>7.86 tokens/segundo</strong></li>
+    </ul>
+    
+    <div class="success-box">
+      <strong>🎯 Resultado final:</strong> Creación exitosa de un asistente experto en fútbol mediante fine-tuning con LoRA, fusión de pesos y optimización GGUF para despliegue local profesional.
+    </div>
+  </div>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Imagen ampliada">
+</div>
+
+<!-- Scroll to top -->
+<div class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</div>
+
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox').classList.add('active');
+  document.getElementById('lightbox-img').src = src;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+window.addEventListener('scroll', function() {
+  const scrollTop = document.getElementById('scrollTop');
+  if (window.pageYOffset > 300) {
+    scrollTop.classList.add('visible');
+  } else {
+    scrollTop.classList.remove('visible');
+  }
+});
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+
+</body>
+</html>
