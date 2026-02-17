@@ -2,6 +2,7 @@
 
 Repositorio con los trabajos y proyectos realizados en la asignatura **Ampliación de Fundamentos del Hardware** del ciclo formativo de **2º de Administración de Sistemas Informáticos en Red (ASIR)** durante el curso académico **2025-2026**.
 
+🌐 https://sedanodev.github.io/2asirAFH2526/trabajos/ 
 ---
 
 ## 📋 Contenido de la Asignatura
