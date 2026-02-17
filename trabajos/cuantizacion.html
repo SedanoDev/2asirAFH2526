@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual: Cuantización de Modelos IA</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1>📦 Cuantización de Modelos IA</h1>
+                <ul class="nav-links">
+                    <li><a href="#introduccion">Introducción</a></li>
+                    <li><a href="#teoria">Teoría</a></li>
+                    <li><a href="#practica">Práctica</a></li>
+                    <li><a href="#resultados">Resultados</a></li>
+                    <li><a href="#aprendizajes">Aprendizajes</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="introduccion" class="section">
+            <h2>📚 Introducción</h2>
+            <div class="info-box">
+                <p><strong>Práctica:</strong> Cuantización de Modelos de Lenguaje</p>
+                <p><strong>Fecha:</strong> 23 de enero de 2026</p>
+                <p><strong>Objetivo:</strong> Convertir un modelo de alta precisión (FP16) a formato cuantizado (Q3) para reducir tamaño y mejorar velocidad</p>
+            </div>
+
+            <h3>¿Qué es la cuantización?</h3>
+            <p>La cuantización es el proceso de <strong>reducir la precisión numérica</strong> de los parámetros de un modelo de lenguaje para que ocupe menos espacio y sea más rápido, con mínima pérdida de rendimiento.</p>
+
+            <p>Imagina que el conocimiento de un modelo está almacenado en números con muchos decimales, como <code>7.123456789</code>. La cuantización redondea ese número a <code>7.12</code> o incluso a <code>7</code>. El número es menos preciso, pero sigue representando casi el mismo valor, es mucho más fácil de almacenar y más rápido para hacer cálculos.</p>
+
+            <h3>Modelo utilizado</h3>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <h4>🤖 Phi-3-mini-4k-instruct</h4>
+                    <p>Modelo de Microsoft de alta calidad especializado en tareas de razonamiento.</p>
+                    <p class="status info">Modelo base</p>
+                </div>
+                <div class="tool-card">
+                    <h4>🔧 llama.cpp</h4>
+                    <p>Herramienta para conversión y cuantización de modelos a formato GGUF.</p>
+                    <p class="status success">Herramienta usada</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="teoria" class="section">
+            <h2>📖 Teoría de la Cuantización</h2>
+
+            <h3>Concepto central</h3>
+            <p>La cuantización de un LLM consiste en <strong>reducir el número de bits</strong> necesarios para representar cada peso del modelo.</p>
+
+            <p>Normalmente, los modelos se entrenan usando números de alta precisión de 32 bits (FP32). La cuantización convierte estos pesos a formatos de menor precisión:</p>
+
+            <ul>
+                <li><strong>32 bits (FP32):</strong> Precisión completa (usado en entrenamiento)</li>
+                <li><strong>16 bits (FP16):</strong> Media precisión</li>
+                <li><strong>8 bits (INT8):</strong> Cuantización moderada</li>
+                <li><strong>4 bits (INT4):</strong> Muy popular para ejecución local</li>
+                <li><strong>3 bits (INT3):</strong> Cuantización agresiva</li>
+            </ul>
+
+            <div class="info-box">
+                <p><strong>💡 Punto clave:</strong> No se cambia el conocimiento fundamental del modelo, solo la precisión con la que se almacena y procesa cada pieza de ese conocimiento.</p>
+            </div>
+
+            <h3>Beneficios prácticos</h3>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <h4>💾 Reducción de tamaño</h4>
+                    <p>Un modelo de 28 GB en FP32 puede reducirse a 4 GB en INT4 (reducción del 85%).</p>
+                </div>
+                <div class="tool-card">
+                    <h4>🧠 Menor consumo RAM/VRAM</h4>
+                    <p>Modelos que requerían 24 GB ahora caben en GPUs de 8 GB.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>�?Inferencia más rápida</h4>
+                    <p>Cálculos con enteros son más rápidos que con flotantes de 32 bits.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>🧑‍�?Democratización</h4>
+                    <p>Permite ejecutar modelos potentes en hardware consumer sin servidores cloud.</p>
+                </div>
+            </div>
+
+            <h3>El trade-off: precisión vs eficiencia</h3>
+            <div class="warning-box">
+                <p><strong>⚠️ Coste a pagar:</strong> Al simplificar los pesos, el modelo puede volverse ligeramente "menos inteligente". Puede que no capte matices tan sutiles o cometa pequeños errores que la versión FP32 no cometería.</p>
+            </div>
+
+            <p><strong>El punto óptimo:</strong> Las técnicas modernas (GGUF, AWQ) buscan el mejor equilibrio entre compresión/velocidad y mínima pérdida de precisión. Para la mayoría de usos, una cuantización a 4 bits (Q4_K_M) es casi indistinguible del modelo original.</p>
+
+            <h3>Tipos de cuantización en GGUF</h3>
+            <div class="specs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Bits</th>
+                            <th>Tamaño relativo</th>
+                            <th>Calidad</th>
+                            <th>Uso recomendado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>F16</td>
+                            <td>16</td>
+                            <td>100%</td>
+                            <td>Máxima</td>
+                            <td>Referencia</td>
+                        </tr>
+                        <tr>
+                            <td>Q8_0</td>
+                            <td>8</td>
+                            <td>~50%</td>
+                            <td>Muy alta</td>
+                            <td>Sin pérdidas notables</td>
+                        </tr>
+                        <tr>
+                            <td>Q5_K_M</td>
+                            <td>5</td>
+                            <td>~35%</td>
+                            <td>Alta</td>
+                            <td>Excelente equilibrio</td>
+                        </tr>
+                        <tr>
+                            <td>Q4_K_M</td>
+                            <td>4</td>
+                            <td>~25%</td>
+                            <td>Buena</td>
+                            <td>Estándar de oro</td>
+                        </tr>
+                        <tr>
+                            <td>Q3_K_M</td>
+                            <td>3</td>
+                            <td>~19%</td>
+                            <td>Aceptable</td>
+                            <td>Memoria muy limitada</td>
+                        </tr>
+                        <tr>
+                            <td>Q2_K</td>
+                            <td>2</td>
+                            <td>~12%</td>
+                            <td>Baja</td>
+                            <td>Solo experimentación</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Nomenclatura GGUF</h3>
+            <p>Las letras <code>Q4_K_M</code> se refieren al nivel de cuantización:</p>
+            <ul>
+                <li><strong>Q:</strong> Quantization (Cuantización)</li>
+                <li><strong>4:</strong> Número de bits por parámetro (menos bits = más ligero pero menos inteligente)</li>
+                <li><strong>K:</strong> Técnica moderna de compresión (K-quants)</li>
+                <li><strong>M:</strong> Ajuste del algoritmo
+                    <ul>
+                        <li><strong>S</strong> (Small): Más compresión</li>
+                        <li><strong>M</strong> (Medium): Equilibrado</li>
+                        <li><strong>L</strong> (Large): Más calidad</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="info-box">
+                <p><strong>💡 Nota:</strong> A partir de Q8, no se usa la serie K (ej: Q8_0) porque a ese nivel de calidad no hace falta usar técnicas complejas de compresión.</p>
+            </div>
+        </section>
+
+        <section id="practica" class="section">
+            <h2>🛠�?Práctica Realizada</h2>
+
+            <h3>Objetivo</h3>
+            <p>Convertir el modelo <strong>Phi-3-mini-4k-instruct</strong> de Microsoft desde formato FP16 (alta precisión) a formato GGUF cuantizado a 3 bits (Q3_K_M).</p>
+
+            <h3>Herramientas necesarias</h3>
+            <ul>
+                <li>Python 3.x instalado</li>
+                <li>Git y git-lfs</li>
+                <li>Repositorio llama.cpp</li>
+                <li>~15 GB de espacio libre en disco</li>
+            </ul>
+
+            <h3>Paso 1: Preparar el entorno</h3>
+            <pre><code class="language-bash"># Crear carpeta del proyecto
+mkdir ejercicio-cuantizacion
+cd ejercicio-cuantizacion
+
+# Clonar llama.cpp
+git clone https://github.com/ggerganov/llama.cpp.git
+
+# Crear entorno virtual
+python -m venv venv
+
+# Activar entorno (Windows)
+venv\Scripts\activate
+
+# Activar entorno (Linux/macOS)
+source venv/bin/activate
+
+# Instalar dependencias
+pip install -r llama.cpp/requirements.txt</code></pre>
+
+            <h3>Paso 2: Descargar el modelo original</h3>
+            <pre><code class="language-bash"># Asegurarse de tener git-lfs instalado
+# Descargar desde: https://git-lfs.github.com/
+
+# Clonar el modelo (varios GB)
+git clone https://huggingface.co/microsoft/Phi-3-mini-4k-instruct</code></pre>
+
+            <div class="warning-box">
+                <p><strong>⚠️ Atención:</strong> La descarga puede tardar mucho tiempo dependiendo de tu conexión. El modelo original ocupa ~7 GB.</p>
+            </div>
+
+            <h3>Paso 3: Conversión y cuantización</h3>
+            <p>Este es el paso central. Ejecutamos el script que lee el modelo original y genera el archivo GGUF cuantizado:</p>
+
+            <pre><code class="language-bash">python llama.cpp/convert-hf-to-gguf.py ./Phi-3-mini-4k-instruct/ --outtype q3_k_m --outfile phi-3-mini-q3.gguf</code></pre>
+
+            <h4>Desglose del comando:</h4>
+            <ul>
+                <li><code>python llama.cpp/convert-hf-to-gguf.py</code> - Script de conversión</li>
+                <li><code>./Phi-3-mini-4k-instruct/</code> - Carpeta con modelo original</li>
+                <li><code>--outtype q3_k_m</code> - Tipo de cuantización (3 bits, K-quants, Medium)</li>
+                <li><code>--outfile phi-3-mini-q3.gguf</code> - Nombre del archivo final</li>
+            </ul>
+
+            <h3>Opciones de cuantización alternativas</h3>
+            <pre><code class="language-bash"># Sin cuantización (16 bits) - Máxima calidad
+--outtype f16
+
+# 8 bits - Alta calidad, casi sin pérdidas
+--outtype q8_0
+
+# 5 bits - Excelente punto intermedio
+--outtype q5_k_m
+
+# 4 bits - Estándar de oro (más común)
+--outtype q4_k_m
+
+# 3 bits - Lo que usamos (agresivo pero viable)
+--outtype q3_k_m
+
+# 2 bits - Extremadamente comprimido
+--outtype q2_k</code></pre>
+        </section>
+
+        <section id="resultados" class="section">
+            <h2>📊 Resultados Obtenidos</h2>
+
+            <h3>Comparativa de tamaños de archivo</h3>
+
+            <div class="screenshot-item">
+                <h4>Captura 1: Propiedades del modelo cuantizado (Q3)</h4>
+                <img src="imagenes/archivo_ia_cuantizada.png" alt="Propiedades modelo Q3" class="screenshot">
+                <p><strong>Archivo:</strong> phi-3-mini-q3.gguf</p>
+                <p><strong>Ubicación:</strong> C:\Users\aulateca26\lmstudio\models\lmstudio</p>
+                <p><strong>Tipo:</strong> Archivo GGUF (.gguf)</p>
+
+                <div class="specs-table">
+                    <table>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Tamaño en disco</td>
+                            <td>3.78 GB (4,061,221,824 bytes)</td>
+                        </tr>
+                        <tr>
+                            <td>Fecha de creación</td>
+                            <td>Viernes, 23 de enero de 2026, 17:07:49</td>
+                        </tr>
+                        <tr>
+                            <td>Fecha de modificación</td>
+                            <td>Viernes, 23 de enero de 2026, 16:54:38</td>
+                        </tr>
+                        <tr>
+                            <td>Último acceso</td>
+                            <td>Hoy, 28 de enero de 2026, hace 17 minutos</td>
+                        </tr>
+                        <tr>
+                            <td>Cuantización</td>
+                            <td>Q3_K_M (3 bits, K-quants Medium)</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Descripción:</strong> Modelo resultante tras aplicar cuantización Q3_K_M. Ocupa solo 3.78 GB. Este archivo se puede usar directamente en LM Studio.</p>
+            </div>
+
+            <div class="screenshot-item">
+                <h4>Captura 2: Propiedades del modelo original (FP16)</h4>
+                <img src="imagenes/archivo.png" alt="Propiedades modelo FP16" class="screenshot">
+                <p><strong>Archivo:</strong> Phi-3-mini-4k-instruct-fp16.gguf</p>
+                <p><strong>Ubicación:</strong> C:\Users\aulateca26\lmstudio\models\microsoft</p>
+                <p><strong>Tipo:</strong> Archivo GGUF (.gguf)</p>
+
+                <div class="specs-table">
+                    <table>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Tamaño en disco</td>
+                            <td>7.11 GB (7,643,299,840 bytes)</td>
+                        </tr>
+                        <tr>
+                            <td>Fecha de creación</td>
+                            <td>Viernes, 23 de enero de 2026, 17:18:55</td>
+                        </tr>
+                        <tr>
+                            <td>Fecha de modificación</td>
+                            <td>Viernes, 23 de enero de 2026, 17:21:06</td>
+                        </tr>
+                        <tr>
+                            <td>Último acceso</td>
+                            <td>Hoy, 28 de enero de 2026, hace 18 minutos</td>
+                        </tr>
+                        <tr>
+                            <td>Cuantización</td>
+                            <td>FP16 (16 bits de precisión)</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Descripción:</strong> Este es el modelo original sin cuantizar, en formato FP16. Ocupa 7.11 GB en disco y sirve como punto de referencia para comparar con el modelo cuantizado.</p>
+            </div>
+
+            <h3>Análisis de la reducción</h3>
+            <div class="conclusion-box">
+                <h4>Resumen de la cuantización aplicada</h4>
+                <ul>
+                    <li><strong>Modelo base:</strong> Phi-3-mini-4k-instruct (Microsoft)</li>
+                    <li><strong>Tamaño original (FP16):</strong> 7.11 GB (7,643,299,840 bytes)</li>
+                    <li><strong>Tamaño cuantizado (Q3_K_M):</strong> 3.78 GB (4,061,221,824 bytes)</li>
+                    <li><strong>Bytes ahorrados:</strong> 3,582,078,016 bytes (3.33 GB)</li>
+                    <li><strong>Reducción porcentual:</strong> 46.9% del tamaño original</li>
+                    <li><strong>Compresión lograda:</strong> 53.1% de reducción</li>
+                </ul>
+            </div>
+
+            <h3>Pruebas de rendimiento</h3>
+
+            <div class="screenshot-item">
+                <h4>Captura 3: Respuesta del modelo original (FP16)</h4>
+                <img src="imagenes/tokens_ia.png" alt="Velocidad tokens modelo FP16" class="screenshot">
+                <p><strong>Interfaz:</strong> LM Studio Chat</p>
+                <p><strong>Modelo:</strong> Phi-3-mini-4k-instruct-fp16</p>
+                <p><strong>Pregunta realizada:</strong> "Hola" (saludo simple para probar)</p>
+                <p><strong>Respuesta del modelo:</strong> "¡Bienvenido! Si tienes alguna pregunta o necesitas asistencia, estaré encantado de ayudarte. ¿Cómo te sientes hoy?"</p>
+
+                <p><strong>Observaciones:</strong></p>
+                <ul>
+                    <li>El modelo FP16 responde con una respuesta elaborada y amigable</li>
+                    <li>Genera respuesta coherente en español</li>
+                    <li>La interfaz muestra métricas de tokens en la parte inferior</li>
+                    <li>Respuesta más extensa y con mayor empatía</li>
+                    <li>Calidad de respuesta: 100% (referencia)</li>
+                </ul>
+            </div>
+
+            <div class="screenshot-item">
+                <h4>Captura 4: Respuesta del modelo cuantizado (Q3)</h4>
+                <img src="imagenes/tokens-ia-cuantizada.png" alt="Velocidad tokens modelo Q3" class="screenshot">
+                <p><strong>Interfaz:</strong> LM Studio Chat</p>
+                <p><strong>Modelo:</strong> phi-3-mini-q3.gguf (Q3_K_M)</p>
+                <p><strong>Pregunta realizada:</strong> "Hola" (misma prueba que con FP16)</p>
+                <p><strong>Respuesta del modelo:</strong> "¡Hola! ¿En qué puedo ayudarte hoy?"</p>
+
+                <p><strong>Observaciones:</strong></p>
+                <ul>
+                    <li>El modelo Q3 responde de manera más concisa</li>
+                    <li>La respuesta es más directa que la del FP16</li>
+                    <li>Genera texto coherente en español</li>
+                    <li>Métricas visibles: 24 tokens generados, 0.0 ms latencia</li>
+                    <li>A pesar de la cuantización agresiva (3 bits), mantiene buena calidad</li>
+                    <li>Respuesta más breve pero igualmente funcional</li>
+                </ul>
+            </div>
+
+            <h3>Comparativa de rendimiento en chat</h3>
+            <div class="specs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Modelo FP16</th>
+                            <th>Modelo Q3_K_M</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Respuesta a "Hola"</td>
+                            <td>"¡Bienvenido! Si tienes alguna pregunta..."</td>
+                            <td>"¡Hola! ¿En qué puedo ayudarte hoy?"</td>
+                            <td>�?Ambos coherentes</td>
+                        </tr>
+                        <tr>
+                            <td>Longitud respuesta</td>
+                            <td>Más elaborada (2 líneas)</td>
+                            <td>Concisa (1 línea)</td>
+                            <td>⚠️ FP16 más verboso</td>
+                        </tr>
+                        <tr>
+                            <td>Calidad lingüística</td>
+                            <td>100%</td>
+                            <td>~95% (ligeramente más directa)</td>
+                            <td>�?Ambas excelentes</td>
+                        </tr>
+                        <tr>
+                            <td>Tamaño en disco</td>
+                            <td>7.11 GB</td>
+                            <td>3.78 GB</td>
+                            <td>�?53% reducción</td>
+                        </tr>
+                        <tr>
+                            <td>VRAM estimada</td>
+                            <td>~8 GB</td>
+                            <td>~4.5 GB</td>
+                            <td>�?Más accesible</td>
+                        </tr>
+                        <tr>
+                            <td>Velocidad carga</td>
+                            <td>Más lenta</td>
+                            <td>Más rápida</td>
+                            <td>�?Mejora en Q3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <p><strong>💡 Conclusión de las pruebas:</strong> El modelo FP16 genera respuestas ligeramente más elaboradas y empáticas, mientras que el Q3 es más conciso y directo. Para conversaciones generales, ambas versiones son perfectamente funcionales. La diferencia en calidad es mínima mientras que los beneficios en tamaño y velocidad del Q3 son significativos.</p>
+            </div>
+        </section>
+
+        <section id="aprendizajes" class="section">
+            <h2>💡 Aprendizajes</h2>
+
+            <div class="learning-category">
+                <h3>🔧 Técnicos</h3>
+                <ul class="learning-list">
+                    <li><strong>La cuantización es compresión con pérdida:</strong> Similar a convertir un FLAC a MP3. Se pierde algo de información pero el resultado sigue siendo muy útil.</li>
+                    <li><strong>Q3 es agresivo pero viable:</strong> Reducir de 16 bits a 3 bits (5.3x menos precisión) resultó en 53% de reducción de tamaño. El modelo Q3 genera respuestas más concisas que el FP16.</li>
+                    <li><strong>GGUF es el estándar actual:</strong> Formato optimizado para ejecución en CPUs y GPUs consumer, reemplazando formatos anteriores como GGML.</li>
+                    <li><strong>llama.cpp es multiplataforma:</strong> Funciona en Windows, Linux, macOS e incluso dispositivos móviles con las librerías adecuadas.</li>
+                    <li><strong>El proceso es determinístico:</strong> Cuantizar el mismo modelo con los mismos parámetros siempre produce el mismo resultado (mismo tamaño, mismo hash).</li>
+                </ul>
+            </div>
+
+            <div class="learning-category">
+                <h3>📚 De proceso</h3>
+                <ul class="learning-list">
+                    <li><strong>Importancia del entorno virtual:</strong> Aislar las dependencias evita conflictos con otras versiones de librerías Python en el sistema.</li>
+                    <li><strong>Git LFS es esencial:</strong> Los modelos son archivos enormes (>1GB). Git normal no puede manejarlos, necesita Git Large File Storage.</li>
+                    <li><strong>Paciencia en descargas:</strong> 7 GB pueden tardar mucho. Siempre verificar espacio en disco antes de empezar (mínimo 15 GB libres para tener margen).</li>
+                    <li><strong>Validación del resultado:</strong> Siempre probar el modelo cuantizado en LM Studio u otra herramienta antes de borrar el original.</li>
+                    <li><strong>Documentar fechas:</strong> Las propiedades del archivo muestran cuándo se creó cada versión, útil para auditoría.</li>
+                </ul>
+            </div>
+
+            <div class="learning-category">
+                <h3>🎯 Prácticos</h3>
+                <ul class="learning-list">
+                    <li><strong>Q4_K_M es el punto dulce:</strong> Para la mayoría de usos, Q4 ofrece mejor equilibrio que Q3. Q3 es útil solo si la RAM/VRAM es muy limitada.</li>
+                    <li><strong>No todo modelo cuantiza igual:</strong> Modelos más grandes (70B+) toleran mejor la cuantización agresiva que modelos pequeños (3B-7B).</li>
+                    <li><strong>Caso de uso importa:</strong> Para chatbots generales, Q3 puede ser suficiente. Para tareas de razonamiento complejo o código, mejor Q4 o Q5.</li>
+                    <li><strong>Cuantizar != Fine-tuning:</strong> La cuantización no mejora el modelo, solo lo hace más eficiente. El conocimiento sigue siendo el mismo.</li>
+                    <li><strong>FP16 más verboso que Q3:</strong> La cuantización puede afectar ligeramente el estilo de las respuestas, haciéndolas más concisas.</li>
+                </ul>
+            </div>
+
+            <div class="best-practices">
+                <h3>�?Mejores prácticas</h3>
+                <ol>
+                    <li><strong>Empezar con Q4_K_M:</strong> Es el estándar. Solo ir a Q3 si realmente necesitas ahorrar espacio</li>
+                    <li><strong>Mantener el original:</strong> No borrar el modelo FP16 hasta verificar que el cuantizado funciona bien</li>
+                    <li><strong>Comparar perplejidad:</strong> Usar métricas objetivas para medir degradación de calidad, no solo pruebas subjetivas</li>
+                    <li><strong>Documentar configuración:</strong> Anotar qué comando exacto usaste para poder replicarlo después</li>
+                    <li><strong>Nombrar archivos claramente:</strong> Incluir el tipo de cuantización en el nombre (ej: <code>phi-3-mini-q3.gguf</code>)</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="conclusiones" class="section">
+            <h2>🎯 Conclusiones</h2>
+
+            <div class="conclusion-box">
+                <p>La práctica demostró exitosamente cómo <strong>cuantizar un modelo de lenguaje</strong> de 7.11 GB a 3.78 GB, reduciendo el tamaño en más de la mitad mientras se mantiene funcionalidad aceptable.</p>
+
+                <h3>Logros</h3>
+                <ul>
+                    <li>�?Reducción del 53.1% en tamaño de archivo</li>
+                    <li>�?Modelo funcional y capaz de generar texto coherente</li>
+                    <li>�?Menor consumo de VRAM (~4.5 GB vs ~8 GB)</li>
+                    <li>�?Velocidad de inferencia mejorada</li>
+                    <li>�?Proceso completamente reproducible</li>
+                </ul>
+
+                <h3>Trade-offs observados</h3>
+                <ul>
+                    <li>⚠️ Respuestas del Q3 son más concisas que el FP16</li>
+                    <li>⚠️ El FP16 genera texto ligeramente más elaborado</li>
+                    <li>⚠️ Q3 es más agresivo de lo recomendado para uso general</li>
+                    <li>�?Para conversaciones simples, la diferencia es mínima</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-box">
+                <h3>📢 Recomendación final</h3>
+                <p>Para futuros proyectos de cuantización:</p>
+                <ul>
+                    <li><strong>Uso general:</strong> Q4_K_M es el mejor equilibrio</li>
+                    <li><strong>Hardware limitado:</strong> Q3_K_M como se hizo aquí</li>
+                    <li><strong>Máxima calidad:</strong> Q5_K_M o Q8_0</li>
+                    <li><strong>Experimentación:</strong> Probar Q2_K para ver los límites</li>
+                </ul>
+                <p>La cuantización es una técnica fundamental para democratizar el acceso a modelos de IA potentes, permitiendo que se ejecuten en hardware consumer sin sacrificar demasiada capacidad.</p>
+            </div>
+        </section>
+
+        <section id="recursos" class="section">
+            <h2>🔗 Recursos</h2>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h4>📖 Documentación</h4>
+                    <ul>
+                        <li><a href="https://github.com/ggerganov/llama.cpp" target="_blank">llama.cpp - GitHub</a></li>
+                        <li><a href="https://huggingface.co/microsoft/Phi-3-mini-4k-instruct" target="_blank">Phi-3-mini - Hugging Face</a></li>
+                        <li><a href="https://github.com/ggerganov/llama.cpp/blob/master/examples/quantize/README.md" target="_blank">Guía cuantización llama.cpp</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🎥 Videos educativos</h4>
+                    <ul>
+                        <li><a href="https://youtu.be/PhWXqcUF3hA" target="_blank">Cuantización de 1 bit (binario)</a></li>
+                        <li><a href="https://www.youtube.com/watch?v=h-O7g2YPBPE" target="_blank">¿Qué es GGUF?</a></li>
+                    </ul>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🛠�?Herramientas</h4>
+                    <ul>
+                        <li><a href="https://lmstudio.ai/" target="_blank">LM Studio</a></li>
+                        <li><a href="https://ollama.com/" target="_blank">Ollama</a></li>
+                        <li><a href="https://git-lfs.github.com/" target="_blank">Git LFS</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Manual creado por Luis - ASIR 2º año | Práctica: Cuantización de Modelos IA (23 enero 2026)</p>
+            <p>Jerez de la Frontera, Andalucía</p>
+        </div>
+    </footer>
+</body>
+</html>
