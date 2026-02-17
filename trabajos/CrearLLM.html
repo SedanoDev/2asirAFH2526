@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- METADATA PARA EL INDEX -->
+  <meta name="proyecto-titulo" content="Crear modelo LLM personalizado">
+  <meta name="proyecto-descripcion" content="Fine-tuning de un modelo de lenguaje especializado en fútbol usando Unsloth, LoRA y cuantización GGUF para ejecución local">
+  <meta name="proyecto-tags" content="IA,LLM,Fine-tuning,Machine Learning,Python,Unsloth">
+  <meta name="proyecto-icono" content="ai">
+  
+  <title>Crear modelo LLM - Luis Sedano</title>
+  
+  <style>
+    :root {
+      --color-primario: #6366f1;
+      --color-secundario: #8b5cf6;
+      --color-acento: #06b6d4;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-fondo: #0f172a;
+      --color-fondo-claro: #1e293b;
+      --color-tarjeta: #1e293b;
+      --color-tarjeta-hover: #334155;
+      --color-texto: #f1f5f9;
+      --color-texto-claro: #cbd5e1;
+      --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --sombra-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.7;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: var(--color-texto);
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .background-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      z-index: 0;
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+      color: white;
+      padding: 4rem 3rem;
+      border-radius: 24px;
+      margin-bottom: 3rem;
+      box-shadow: var(--sombra-lg);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>');
+      background-size: 200px;
+      opacity: 0.3;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .emoji {
+      display: inline-block;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      opacity: 0.95;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: var(--color-acento);
+      margin-top: 3rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--color-primario);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: var(--color-secundario);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--color-tarjeta);
+      border-radius: 20px;
+      padding: 3rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--sombra-lg);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
+
+    .objetivo {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border: 2px solid var(--color-primario);
+    }
+
+    .fase {
+      position: relative;
+      padding-left: 4rem;
+    }
+
+    .fase-numero {
+      position: absolute;
+      left: 1.5rem;
+      top: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-success), #059669);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .imagen-container {
+      margin: 2.5rem 0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      background: var(--color-fondo-claro);
+    }
+
+    .imagen-container:hover {
+      transform: scale(1.02);
+      box-shadow: 0 15px 50px rgba(99, 102, 241, 0.3);
+    }
+
+    .imagen-container img {
+      width: 100%;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .imagen-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .caption {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      padding: 1.25rem;
+      font-size: 0.95rem;
+      color: var(--color-texto-claro);
+      font-style: italic;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    code {
+      background: rgba(99, 102, 241, 0.2);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 2rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin: 2rem 0;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    ul, ol {
+      margin-left: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.75rem;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, rgba(245, 158, 11, 0.3) 0%, rgba(251, 191, 36, 0.3) 100%);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 700;
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .warning, .info, .success {
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+      border-left: 4px solid;
+      backdrop-filter: blur(10px);
+    }
+
+    .warning {
+      background: rgba(239, 68, 68, 0.15);
+      border-left-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .info {
+      background: rgba(59, 130, 246, 0.15);
+      border-left-color: #3b82f6;
+      color: #93c5fd;
+    }
+
+    .success {
+      background: rgba(16, 185, 129, 0.15);
+      border-left-color: #10b981;
+      color: #6ee7b7;
+    }
+
+    .recursos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    .recurso-card {
+      background: var(--color-tarjeta-hover);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: var(--sombra);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .recurso-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+      border-color: var(--color-primario);
+    }
+
+    .recurso-card h4 {
+      color: var(--color-acento);
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .recurso-card a {
+      color: var(--color-primario);
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-word;
+      transition: color 0.3s ease;
+    }
+
+    .recurso-card a:hover {
+      color: var(--color-acento);
+      text-decoration: underline;
+    }
+
+    .recurso-card p {
+      color: var(--color-texto-claro);
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-acento);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--color-texto-claro);
+      font-size: 0.9rem;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 3rem;
+      margin: 2rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--color-primario), var(--color-secundario));
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      padding-left: 2rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -3.4rem;
+      top: 0.5rem;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--color-acento);
+      border: 3px solid var(--color-fondo-claro);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3);
+    }
+
+    /* Lightbox para imágenes */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      color: white;
+      font-size: 3rem;
+      cursor: pointer;
+      z-index: 10000;
+      transition: transform 0.3s ease;
+    }
+
+    .lightbox-close:hover {
+      transform: scale(1.2) rotate(90deg);
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.5rem; }
+      header { padding: 2.5rem 1.5rem; }
+      .card { padding: 2rem; }
+      .fase { padding-left: 1.5rem; }
+      .fase-numero {
+        position: static;
+        margin-bottom: 1.5rem;
+      }
+      .recursos {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scroll-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--color-primario);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.7);
+    }
+  </style>
+</head>
+<body>
+
+<div class="background-pattern"></div>
+
+<div class="container">
+  <header>
+    <h1><span class="emoji">🤖</span> Crear tu propio Modelo LLM</h1>
+    <p class="subtitle">Fine-tuning y optimización de modelos de lenguaje para ejecución local</p>
+    <p class="subtitle"><strong>Luis Antonio Sedano Wharton</strong> • Ampliación de Fundamentos del Hardware</p>
+  </header>
+
+  <div class="card objetivo">
+    <h2>🎯 Objetivo del Proyecto</h2>
+    <p>Crear un modelo de lenguaje especializado llamado <strong>"Futbol-Assistant"</strong>, capaz de responder preguntas sobre fútbol (reglas, historia, tácticas y estadísticas) con conocimiento experto en español.</p>
+    
+    <div class="info">
+      <strong>⚠️ Aclaración importante:</strong> "Crear un LLM" no significa pre-entrenar desde cero (imposible localmente), sino personalizar un modelo base mediante <span class="highlight">fine-tuning</span> para especializarlo en una tarea específica.
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">50</span>
+        <span class="stat-label">Épocas de entrenamiento</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">24M</span>
+        <span class="stat-label">Parámetros entrenables</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">6.43GB</span>
+        <span class="stat-label">Tamaño final</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">2x</span>
+        <span class="stat-label">Velocidad vs. estándar</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Pipeline de Creación</h2>
+    
+    <div class="timeline">
+      <div class="timeline-item">
+        <h3>1. Definición del Objetivo</h3>
+        <ul>
+          <li><strong>Tarea específica:</strong> Asistente experto en fútbol</li>
+          <li><strong>Personalidad:</strong> Experto, claro y educativo</li>
+          <li><strong>Idioma:</strong> Español</li>
+          <li><strong>Criterio de éxito:</strong> Respuestas precisas sobre reglas, historia y estadísticas</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <h3>2. Selección de Componentes</h3>
+        <ul>
+          <li><strong>Modelo base:</strong> <code>Llama 3.2B</code></li>
+          <li><strong>Framework:</strong> <span class="highlight">Unsloth</span> (2x faster)</li>
+          <li><strong>Técnica:</strong> <span class="highlight">LoRA/QLoRA</span> (PEFT)</li>
+          <li><strong>Formato final:</strong> <span class="highlight">GGUF</span> (llama.cpp)</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <h3>3. Preparación del Dataset</h3>
+        <p>Conjunto personalizado de instrucciones sobre fútbol en formato JSON con pares pregunta-respuesta de alta calidad.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h3>4. Fine-Tuning</h3>
+        <p>Entrenamiento del modelo con optimización de memoria y velocidad usando Unsloth.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h3>5. Fusión y Cuantización</h3>
+        <p>Merge de adaptadores LoRA y conversión a formato GGUF para ejecución local eficiente.</p>
+      </div>
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm6.png')">
+      <img src="imagenes/llm6.png" alt="System Prompt del modelo">
+      <div class="caption">💬 Configuración del System Prompt: Define la personalidad y especialización del modelo</div>
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm5.png')">
+      <img src="imagenes/llm5.png" alt="Lista de modelos disponibles">
+      <div class="caption">📊 Modelos LLM disponibles: Llama, Gemma y otros modelos open-source</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Dataset de Entrenamiento</h2>
+    <p>Se creó un dataset estructurado con preguntas y respuestas expertas sobre:</p>
+    
+    <ul>
+      <li>⚽ <strong>Reglas del juego:</strong> Fuera de juego, faltas, duración de partidos</li>
+      <li>🏆 <strong>Historia:</strong> Mundiales, jugadores legendarios, récords</li>
+      <li>🎯 <strong>Tácticas:</strong> Formaciones (4-3-3, 4-4-2), posiciones, estrategias</li>
+      <li>📊 <strong>Estadísticas:</strong> Goleadores históricos, equipos dominantes</li>
+      <li>🤖 <strong>Tecnología:</strong> VAR, asistencia arbitral, fair play</li>
+    </ul>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm2.png')">
+      <img src="imagenes/llm2.png" alt="Dataset de entrenamiento">
+      <div class="caption">📝 Fragmento del dataset: Formato JSON con pares instrucción-respuesta</div>
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm7.png')">
+      <img src="imagenes/llm7.png" alt="Ejemplo de respuesta sobre fuera de juego">
+      <div class="caption">✅ Ejemplo de salida: Explicación detallada del fuera de juego con ejemplos prácticos</div>
+    </div>
+  </div>
+
+  <div class="card fase">
+    <span class="fase-numero">3</span>
+    <h2>🔥 Proceso de Fine-Tuning</h2>
+    
+    <h3>⚙️ Configuración del Entrenamiento</h3>
+    <p>Entrenamiento optimizado con <strong>Unsloth</strong>:</p>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">🚀 2x</span>
+        <span class="stat-label">Más rápido</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">💾 0.75%</span>
+        <span class="stat-label">Parámetros entrenables</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">📦 Batch 2</span>
+        <span class="stat-label">Con gradient accumulation</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">🔄 50</span>
+        <span class="stat-label">Épocas</span>
+      </div>
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm3.png')">
+      <img src="imagenes/llm3.png" alt="Inicio del entrenamiento">
+      <div class="caption">🚀 Inicio del fine-tuning: Unsloth 2x faster free finetuning con 28 QKV + O + MLP layers</div>
+    </div>
+
+    <h3>📈 Progreso y Métricas</h3>
+    <ul>
+      <li><strong>Loss inicial:</strong> 2.62 → <strong>Loss final:</strong> 0.31 <span class="highlight">(-88%)</span></li>
+      <li><strong>Velocidad:</strong> ~16 ejemplos/segundo, ~2 pasos/segundo</li>
+      <li><strong>Optimización:</strong> Gradient accumulation + mixed precision</li>
+      <li><strong>Monitorización:</strong> Learning rate dinámico + grad norm</li>
+    </ul>
+
+    <div class="success">
+      <strong>✅ Resultado del entrenamiento:</strong><br>
+      ⏱️ Tiempo total: <strong>49.55 minutos</strong><br>
+      📊 Train samples/second: <strong>16.145</strong><br>
+      📉 Train loss final: <strong>0.367</strong> (reducción del 86%)
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm5.png')">
+      <img src="imagenes/llm4_1.png" alt="Progreso del entrenamiento">
+      <div class="caption">📊 Logs de entrenamiento: Reducción progresiva del loss a través de 50 épocas</div>
+    </div>
+  </div>
+
+  <div class="card fase">
+    <span class="fase-numero">4</span>
+    <h2>🔗 Fusión del Modelo</h2>
+    <p>Los adaptadores <strong>LoRA</strong> se fusionaron con el modelo base para crear un modelo completo sin dependencias:</p>
+    
+    <pre><code># Fusión de adaptadores LoRA con modelo base
+model.save_pretrained_merged(
+    "modelo_futbol_merged",
+    tokenizer,
+    save_method="merged_16bit"
+)</code></pre>
+
+  <div class="card fase">
+    <span class="fase-numero">5</span>
+    <h2>📦 Cuantización a GGUF</h2>
+    <p>Conversión final a formato <strong>GGUF</strong> para optimizar la ejecución local:</p>
+    
+    <ul>
+      <li>🗜️ <strong>Formato:</strong> GGUF (optimizado para inferencia en CPU/GPU)</li>
+      <li>⚡ <strong>Cuantización:</strong> 16-bit → Reducción masiva de tamaño</li>
+      <li>📊 <strong>Procesamiento:</strong> 255 tensores convertidos</li>
+      <li>💾 <strong>Tamaño final:</strong> 6.43 GB (ejecutable localmente)</li>
+      <li>🚀 <strong>Compatible con:</strong> LM Studio, llama.cpp, Ollama</li>
+    </ul>
+
+    <div class="info">
+      <strong>🔍 ¿Qué es GGUF?</strong><br>
+      GGUF (GPT-Generated Unified Format) es el formato estándar de llama.cpp que permite ejecutar LLMs eficientemente en hardware de consumo mediante cuantización y optimizaciones específicas.
+    </div>
+
+    <div class="imagen-container" onclick="openLightbox('imagenes/llm1.png')">
+      <img src="imagenes/llm1.png" alt="Cuantización GGUF">
+      <div class="caption">📦 Conversión final: 255 tensores exportados a formato GGUF con 6.43GB</div>
+    </div>
+
+    <div class="success">
+      <strong>✅ Modelo final generado:</strong> <code>modelo_futbol_gguf/temp.gguf</code><br>
+      🎯 Listo para cargar en LM Studio, Ollama o cualquier cliente compatible con GGUF
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔄 Mejora Continua</h2>
+    <p>El modelo puede perfeccionarse mediante un ciclo iterativo:</p>
+    
+    <ol>
+      <li>🔍 <strong>Identificar fallos:</strong> Detectar respuestas incorrectas durante el uso</li>
+      <li>📝 <strong>Enriquecer dataset:</strong> Convertir fallos en nuevos ejemplos de calidad</li>
+      <li>🔄 <strong>Re-entrenar:</strong> Ejecutar nuevo ciclo de fine-tuning con dataset mejorado</li>
+      <li>✅ <strong>Validar:</strong> Probar mejoras en casos de prueba específicos</li>
+    </ol>
+    
+    <div class="warning">
+      <strong>⚠️ Principio clave:</strong> La calidad del dataset supera a la cantidad. <strong>500 ejemplos excelentes > 50,000 mediocres</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Recursos y Referencias</h2>
+    <div class="recursos">
+      <div class="recurso-card">
+        <h4>🎓 Neural Networks: Zero to Hero</h4>
+        <a href="https://youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ" target="_blank">Curso de Andrej Karpathy</a>
+        <p>Serie completa sobre construcción de redes neuronales y LLMs desde fundamentos matemáticos</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>🦀 RustGPT</h4>
+        <a href="https://github.com/tekaratzas/RustGPT" target="_blank">LLM en Rust desde cero</a>
+        <p>Implementación completa sin PyTorch ni librerías ML, solo matemáticas puras en Rust</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>📖 LLMs from Scratch</h4>
+        <a href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/13_olmo3/standalone-olmo3.ipynb" target="_blank">OLMo-3 Standalone</a>
+        <p>Notebook educativo con implementación completa de arquitectura transformer</p>
+      </div>
+      
+      <div class="recurso-card">
+        <h4>🔬 Tiny LLM</h4>
+        <a href="https://github.com/Geddydukes/tiny_llm" target="_blank">Tiny LLM Project</a>
+        <p>Implementación minimalista ideal para entender fundamentos de LLMs</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✨ Conclusiones</h2>
+    <ul>
+      <li>✅ Personalización exitosa de modelo base mediante <strong>LoRA fine-tuning</strong></li>
+      <li>✅ Especialización del modelo en <strong>conocimiento de fútbol en español</strong></li>
+      <li>✅ Optimización para <strong>ejecución local</strong> mediante cuantización GGUF</li>
+      <li>✅ Reducción del loss de entrenamiento en <strong>86%</strong> (2.62 → 0.37)</li>
+      <li>✅ Proceso <strong>reproducible y escalable</strong> a otros dominios</li>
+      <li>✅ Demostración práctica de creación de LLMs con <strong>hardware de consumo</strong></li>
+    </ul>
+    
+    <div class="success">
+      <strong>🎯 Logro principal:</strong> Transformar un modelo generalista en un <strong>experto de dominio específico</strong> ejecutable localmente sin depender de APIs externas, cloud computing o suscripciones.
+    </div>
+  </div>
+
+</div>
+
+<!-- Lightbox para zoom de imágenes -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Imagen ampliada">
+</div>
+
+<!-- Botón scroll to top -->
+<div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+  ↑
+</div>
+
+<script>
+// Lightbox para ampliar imágenes
+function openLightbox(src) {
+  document.getElementById('lightbox').classList.add('active');
+  document.getElementById('lightbox-img').src = src;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+// Scroll to top
+window.addEventListener('scroll', function() {
+  const scrollTop = document.getElementById('scrollTop');
+  if (window.pageYOffset > 300) {
+    scrollTop.classList.add('visible');
+  } else {
+    scrollTop.classList.remove('visible');
+  }
+});
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+// Cerrar lightbox con ESC
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeLightbox();
+  }
+});
+</script>
+
+</body>
+</html>
